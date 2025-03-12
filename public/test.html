@@ -121,9 +121,10 @@
       let testTitle = "No title";
       let currentAnswer = "";
       let noOfWords = 0;
+      const domain = "https://writing-test-production.up.railway.app";
 
       async function getTest(id) {
-        const response = await fetch(`http://localhost:3000/test/${id}`, {
+        const response = await fetch(`${domain}/test/${id}`, {
           method: "GET",
         });
 
@@ -198,7 +199,7 @@
         }
 
         const fileContent = answerBox.value;
-        const response = await fetch("http://localhost:3000/test/submit", {
+        const response = await fetch(`${domain}/test/submit`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

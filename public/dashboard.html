@@ -91,6 +91,7 @@
     </div>
 
     <script>
+      const domain = "https://writing-test-production.up.railway.app";
       document
         .getElementById("testForm")
         .addEventListener("submit", async function (event) {
@@ -114,7 +115,7 @@
           };
 
           try {
-            const response = await fetch("http://localhost:3000/create-test", {
+            const response = await fetch(`${domain}/create-test`, {
               method: "POST",
               body: formData,
               headers,
@@ -140,7 +141,7 @@
         const headers = {
           Authorization: "Bearer " + localStorage.getItem("token"),
         };
-        const response = await fetch(`http://localhost:3000/test/${id}`, {
+        const response = await fetch(`${domain}/test/${id}`, {
           method: "DELETE",
           headers,
         });
@@ -163,7 +164,7 @@
             Authorization: "Bearer " + localStorage.getItem("token"),
           };
 
-          const response = await fetch("http://localhost:3000/tests", {
+          const response = await fetch(`${domain}/tests`, {
             method: "GET",
             headers,
           });
@@ -185,7 +186,7 @@
               const testLinkTitle = document.createElement("p");
               testLinkTitle.textContent = testLink.title;
 
-              const url = `http://localhost:3000/test?id=${testLink._id}`;
+              const url = `${domain}/test?id=${testLink._id}`;
               const testLinkUrl = document.createElement("a");
               testLinkUrl.href = url;
               const testLinkUrlText = document.createTextNode(url);
@@ -238,7 +239,7 @@
         const token = localStorage.getItem("token");
 
         if (!token) {
-          window.location.href = "http://localhost:3000";
+          window.location.href = domain;
         } else {
           getTestLinks();
         }
@@ -246,7 +247,7 @@
 
       function signOut() {
         localStorage.clear();
-        window.location.href = "http://localhost:3000/";
+        window.location.href = domain;
       }
 
       document

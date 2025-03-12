@@ -11,6 +11,9 @@ const { google } = require("googleapis");
 const app = express();
 const upload = multer({ dest: "uploads/" });
 
+const PORT = process.env.PORT;
+const domain = "writing-test-production.up.railway.app";
+
 app.use(express.static("public"));
 app.use(express.json());
 
@@ -203,7 +206,7 @@ app.post(
         .collection("tests")
         .insertOne({ title, instructions, timeLimit, imageUrl });
       const testId = test.insertedId;
-      const testLink = `http://localhost:${PORT}/test?id=${testId}`;
+      const testLink = `${domain}/test?id=${testId}`;
 
       res
         .status(200)
@@ -252,8 +255,6 @@ app.use((err, req, res, next) => {
   res.status(500).send("Something broke!");
 });
 
-const PORT = process.env.PORT;
-
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${process.env.PORT}`);
+  console.log(`Server running on https://${domain}:${process.env.PORT}`);
 });
