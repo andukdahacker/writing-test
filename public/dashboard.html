@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Create Writing Test</title>
+    <link rel="stylesheet" href="doodle.css" />
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Short+Stack&display=swap");
+      body {
+        font-family: "Short Stack", cursive;
+      }
+    </style>
+    <style>
+      .container {
+        margin: auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+      form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: 600px;
+      }
+      input,
+      textarea {
+        width: 100%;
+        margin-bottom: 10px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+      }
+      button {
+        background: green;
+        color: white;
+        cursor: pointer;
+        border-radius: 5px;
+        padding: 10px;
+      }
+      button:disabled {
+        background: gray;
+        cursor: not-allowed;
+      }
+      .test-link-list {
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+      }
+      .test-link {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px;
+        margin-bottom: 10px;
+        width: 600px;
+      }
+      .delete-button {
+        width: fit-content;
+        background-color: red;
+      }
+    </style>
+  </head>
+  <body class="doodle">
+    <div class="container">
+      <div>
+        <button id="signOutBtn" class="sign-out-btn">Sign out</button>
+      </div>
+      <h2>Create Writing Test</h2>
+      <form id="testForm">
+        <input type="text" id="title" placeholder="Test Title" required />
+        <textarea
+          id="instructions"
+          placeholder="Instructions"
+          required
+        ></textarea>
+        <input
+          type="number"
+          id="timeLimit"
+          placeholder="Time Limit (minutes)"
+          required
+        />
+        <input type="file" id="image" accept="image/*" />
+        <button type="submit" id="submitBtn">Create Test</button>
+      </form>
+      <div id="test-link-list" class="test-link-list"></div>
+    </div>
+
+    <script>
+      document
+        .getElementById("testForm")
+        .addEventListener("submit", async function (event) {
+          event.preventDefault();
+          const submitBtn = document.getElementById("submitBtn");
+          submitBtn.disabled = true;
+
+          const title = document.getElementById("title").value;
+          const instructions = document.getElementById("instructions").value;
+          const timeLimit = document.getElementById("timeLimit").value;
+          const image = document.getElementById("image").files[0];
+
+          const formData = new FormData();
+          formData.append("title", title);
+          formData.append("instructions", instructions);
+          formData.append("timeLimit", timeLimit);
+          if (image) formData.append("image", image);
+
+          const headers = {
+            Authorization: "Bearer " + localStorage.getItem("token"),
+          };
+
+          try {
+            const response = await fetch("http://localhost:3000/create-test", {
+              method: "POST",
+              body: formData,
+              headers,
+            });
+            const data = await response.json();
+
+            if (response.ok) {
+              await getTestLinks();
+              const form = document.getElementById("testForm");
+              form.reset();
+            } else {
+              alert("Failed to create test");
+            }
+          } catch (error) {
+            console.error("Error:", error);
+            alert("Error creating test");
+          } finally {
+            submitBtn.disabled = false;
+          }
+        });
+
+      async function deleteTestLink(id) {
+        const headers = {
+          Authorization: "Bearer " + localStorage.getItem("token"),
+        };
+        const response = await fetch(`http://localhost:3000/test/${id}`, {
+          method: "DELETE",
+          headers,
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to delete test");
+        }
+
+        const json = await response.json();
+
+        return json;
+      }
+
+      async function getTestLinks() {
+        const testLinkList = document.getElementById("test-link-list");
+        testLinkList.innerHTML = "<p>Loading...</p>";
+        try {
+          const headers = {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + localStorage.getItem("token"),
+          };
+
+          const response = await fetch("http://localhost:3000/tests", {
+            method: "GET",
+            headers,
+          });
+
+          const json = await response.json();
+
+          if (json.tests.length == 0) {
+            testLinkList.innerHTML = `
+                        <p>No test created yet</p>
+                    `;
+          } else {
+            testLinkList.innerHTML = ``;
+            for (let i = 0; i < json.tests.length; i++) {
+              const testLink = json.tests[i];
+              const testLinkNode = document.createElement("div");
+              testLinkNode.id = "test-link";
+              testLinkNode.className = "test-link";
+
+              const testLinkTitle = document.createElement("p");
+              testLinkTitle.textContent = testLink.title;
+
+              const url = `http://localhost:3000/test?id=${testLink._id}`;
+              const testLinkUrl = document.createElement("a");
+              testLinkUrl.href = url;
+              const testLinkUrlText = document.createTextNode(url);
+              testLinkUrl.appendChild(testLinkUrlText);
+
+              const deleteButton = document.createElement("button");
+              deleteButton.id = "deleteButton";
+              deleteButton.className = "delete-button";
+              deleteButton.textContent = "X";
+              deleteButton.addEventListener("click", async function (event) {
+                event.preventDefault();
+                try {
+                  await deleteTestLink(testLink._id);
+                  await getTestLinks();
+                } catch (e) {
+                  console.log("Failed to delete test: ", e);
+                  alert("Failed to delete test");
+                }
+              });
+
+              const copyButton = document.createElement("button");
+              copyButton.id = "copyButton";
+              copyButton.className = "copy-button";
+              copyButton.textContent = "COPY";
+              copyButton.addEventListener("click", async function (event) {
+                event.preventDefault();
+                navigator.clipboard.writeText(url);
+              });
+
+              testLinkNode.appendChild(testLinkTitle);
+              testLinkNode.appendChild(testLinkUrl);
+              testLinkNode.appendChild(copyButton);
+              testLinkNode.appendChild(deleteButton);
+
+              testLinkList.appendChild(testLinkNode);
+            }
+          }
+        } catch (e) {
+          console.log("Error: ", e);
+          testLinkList.innerHTML = `
+                      <div>
+                        <p>Failed to get tests</p>
+                        <button id="retry-button">Retry</button>
+                      </div>
+                      `;
+        }
+      }
+
+      window.onload = () => {
+        const token = localStorage.getItem("token");
+
+        if (!token) {
+          window.location.href = "http://localhost:3000";
+        } else {
+          getTestLinks();
+        }
+      };
+
+      function signOut() {
+        localStorage.clear();
+        window.location.href = "http://localhost:3000/";
+      }
+
+      document
+        .getElementById("signOutBtn")
+        .addEventListener("click", function (event) {
+          event.preventDefault();
+          signOut();
+        });
+    </script>
+  </body>
+</html>
