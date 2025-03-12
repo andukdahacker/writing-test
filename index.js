@@ -10,8 +10,6 @@ require("dotenv").config();
 const { google } = require("googleapis");
 const app = express();
 const upload = multer({ dest: "uploads/" });
-const PORT = 3000;
-const cred = require("./credentials.json");
 
 app.use(express.static("public"));
 app.use(express.json());
@@ -255,5 +253,5 @@ app.use((err, req, res, next) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`Server running on http://localhost:${process.env.PORT}`);
 });
