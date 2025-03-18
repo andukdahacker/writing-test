@@ -71,7 +71,7 @@ async function getFolderId() {
   });
 
   const folder = folders.data.files.filter((x) => {
-    return x.name === "Writing Test";
+    return x.name === "Writing Submission";
   });
 
   const folderId = folder.length ? folder[0].id : 0;
@@ -215,7 +215,7 @@ app.post(
       console.error("Error creating test:", error);
       res.status(500).json({ error: "Failed to create test" });
     }
-  }
+  },
 );
 
 // Endpoint to delete a test
