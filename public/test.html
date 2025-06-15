@@ -1,265 +1,282 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Writing Test</title>
-    <link rel="stylesheet" href="doodle.css" />
-    <style>
-      @import url("https://fonts.googleapis.com/css2?family=Short+Stack&display=swap");
-      body {
-        font-family: "Short Stack", cursive;
-      }
-    </style>
-    <style>
-      html {
-        margin: 0;
-        padding: 0;
-        height: 100%;
-        width: 100%;
-      }
-      body {
-        text-align: center;
-        margin: 0;
-        padding: 0;
-        height: 100%;
-        width: 100%;
-      }
-      textarea {
-        height: 100%;
-      }
-      .hidden {
-        display: none;
-      }
-      .test-img {
-        width: 100%; /* or any custom size */
-        height: 100%;
-        object-fit: contain;
-      }
-      .test-container {
-        display: flex;
-        height: calc(100vh - 64px - 2px - 32px);
-      }
-      .test-details {
-        height: 100%;
-        overflow-y: scroll;
-      }
-      .test-header {
-        display: flex;
-        justify-content: end;
-        align-items: center;
-        height: 64px;
-        margin-left: 16px;
-        margin-right: 16px;
-      }
-      .test-textarea {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        padding: 16px;
-      }
-      button {
-        width: 128px;
-      }
-      .test-footer {
-        display: flex;
-        justify-content: space-between;
-        margin-top: 8px;
-      }
-      .time {
-        padding-left: 16px;
-        padding-right: 16px;
-      }
-      .warning {
-        padding-right: 16px;
-      }
-      .test-details-container {
-        flex: 1;
-        height: 100%;
-        margin: 16px;
-      }
-    </style>
-  </head>
-  <body class="doodle">
-    <div class="test-header doodle-border">
-      <p id="warning" class="hidden warning" style="color: red"></p>
-      <p class="time">
-        <strong>Time Remaining:</strong> <span id="timer">--:--</span>
-      </p>
-    </div>
-    <div class="test-container">
-      <div class="doodle-border test-details-container">
-        <div class="test-details">
-          <h2 id="testTitle">Writing Test</h2>
-          <p id="testInstructions">
-            Follow the instructions and complete the test.
-          </p>
-          <img id="testImg" class="test-img" />
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Writing Test</title>
+        <link rel="stylesheet" href="doodle.css" />
+        <style>
+            @import url("https://fonts.googleapis.com/css2?family=Short+Stack&display=swap");
+            body {
+                font-family: "Short Stack", cursive;
+            }
+        </style>
+        <style>
+            html {
+                margin: 0;
+                padding: 0;
+                height: 100%;
+                width: 100%;
+            }
+            body {
+                text-align: center;
+                margin: 0;
+                padding: 0;
+                height: 100%;
+                width: 100%;
+            }
+            textarea {
+                height: 100%;
+            }
+            .hidden {
+                display: none;
+            }
+            .test-img {
+                width: 100%; /* or any custom size */
+                height: 100%;
+                object-fit: contain;
+            }
+            .test-container {
+                display: flex;
+                height: calc(100vh - 64px - 2px - 32px);
+            }
+            .test-details {
+                height: 100%;
+                overflow-y: scroll;
+            }
+            .test-header {
+                display: flex;
+                justify-content: end;
+                align-items: center;
+                height: 64px;
+                margin-left: 16px;
+                margin-right: 16px;
+            }
+            .test-textarea {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                padding: 16px;
+            }
+            button {
+                width: 128px;
+            }
+            .test-footer {
+                display: flex;
+                justify-content: space-between;
+                margin-top: 8px;
+            }
+            .time {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+            .warning {
+                padding-right: 16px;
+            }
+            .test-details-container {
+                flex: 1;
+                height: 100%;
+                margin: 16px;
+            }
+        </style>
+    </head>
+    <body class="doodle">
+        <div class="test-header doodle-border">
+            <p id="warning" class="hidden warning" style="color: red"></p>
+            <p class="time">
+                <strong>Time Remaining:</strong> <span id="timer">--:--</span>
+            </p>
         </div>
-      </div>
+        <div class="test-container">
+            <div class="doodle-border test-details-container">
+                <div class="test-details">
+                    <h2 id="testTitle">Writing Test</h2>
+                    <p id="testInstructions">
+                        Follow the instructions and complete the test.
+                    </p>
+                    <img id="testImg" class="test-img" />
+                </div>
+            </div>
 
-      <div class="test-textarea">
-        <textarea id="answer" placeholder="Start writing here..."></textarea>
-        <div class="test-footer">
-          <p>Word count: <span id="wordCount">0</span></p>
-          <button onclick="submitTest()" id="submitBtn" class="submit-btn">
-            Submit
-          </button>
+            <div class="test-textarea">
+                <textarea
+                    id="answer"
+                    placeholder="Start writing here..."
+                ></textarea>
+                <div class="test-footer">
+                    <p>Word count: <span id="wordCount">0</span></p>
+                    <button
+                        onclick="submitTest()"
+                        id="submitBtn"
+                        class="submit-btn"
+                    >
+                        Submit
+                    </button>
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
 
-    <script>
-      let uploaded = false;
-      let switchCount = 0;
-      const maxSwitches = 3;
-      const answerBox = document.getElementById("answer");
-      const warning = document.getElementById("warning");
-      const timerDisplay = document.getElementById("timer");
-      let timeLeft = 10 * 60;
-      let studentName;
-      let testTitle = "No title";
-      let currentAnswer = "";
-      let noOfWords = 0;
-      const domain = "https://writing-test-production.up.railway.app";
+        <script>
+            let uploaded = false;
+            let switchCount = 0;
+            const maxSwitches = 3;
+            const answerBox = document.getElementById("answer");
+            const warning = document.getElementById("warning");
+            const timerDisplay = document.getElementById("timer");
+            let timeLeft = 10 * 60;
+            let studentName;
+            let testTitle = "No title";
+            let currentAnswer = "";
+            let noOfWords = 0;
+            const domain = "https://writing-test-production.up.railway.app";
 
-      async function getTest(id) {
-        const response = await fetch(`${domain}/test/${id}`, {
-          method: "GET",
-        });
+            async function getTest(id) {
+                const response = await fetch(`${domain}/test/${id}`, {
+                    method: "GET",
+                });
 
-        if (!response.ok) {
-          throw new Error("Cannot get test");
-        }
+                if (!response.ok) {
+                    throw new Error("Cannot get test");
+                }
 
-        return await response.json();
-      }
+                return await response.json();
+            }
 
-      function updateTimer() {
-        let minutes = Math.floor(timeLeft / 60);
-        let seconds = timeLeft % 60;
-        timerDisplay.textContent = `${minutes}:${
-          seconds < 10 ? "0" : ""
-        }${seconds}`;
-        if (timeLeft > 0) {
-          timeLeft--;
-          setTimeout(updateTimer, 1000);
-        } else {
-          alert("Time's up! Your test is being submitted.");
-          submitTest();
-        }
-      }
+            function updateTimer() {
+                let minutes = Math.floor(timeLeft / 60);
+                let seconds = timeLeft % 60;
+                timerDisplay.textContent = `${minutes}:${
+                    seconds < 10 ? "0" : ""
+                }${seconds}`;
+                if (timeLeft > 0) {
+                    timeLeft--;
+                    setTimeout(updateTimer, 1000);
+                } else {
+                    alert("Time's up! Your test is being submitted.");
+                    submitTest();
+                }
+            }
 
-      answerBox.value = localStorage.getItem("writingTestAnswer") || "";
-      answerBox.addEventListener("input", () => {
-        localStorage.setItem("writingTestAnswer", answerBox.value);
-      });
+            answerBox.value = localStorage.getItem("writingTestAnswer") || "";
+            answerBox.addEventListener("input", () => {
+                localStorage.setItem("writingTestAnswer", answerBox.value);
+            });
 
-      document.addEventListener("visibilitychange", () => {
-        if (document.hidden) {
-          switchCount++;
-          warning.textContent = `Warning: You switched tabs ${switchCount}/${maxSwitches} times!`;
-          warning.classList.remove("hidden");
-          if (switchCount == maxSwitches) {
-            alert(
-              "You have switched tabs too many times. Your test is being submitted."
-            );
-            submitTest();
-          }
-        }
-      });
+            document.addEventListener("visibilitychange", () => {
+                if (document.hidden) {
+                    switchCount++;
+                    warning.textContent = `Warning: You switched tabs ${switchCount}/${maxSwitches} times!`;
+                    warning.classList.remove("hidden");
+                    if (switchCount == maxSwitches) {
+                        alert(
+                            "You have switched tabs too many times. Your test is being submitted.",
+                        );
+                        submitTest();
+                    }
+                }
+            });
 
-      document.getElementById("answer").addEventListener("paste", function (e) {
-        e.preventDefault();
-        return;
-      });
+            document
+                .getElementById("answer")
+                .addEventListener("paste", function (e) {
+                    e.preventDefault();
+                    return;
+                });
 
-      document.getElementById("answer").addEventListener("input", function (e) {
-        e.preventDefault();
+            document
+                .getElementById("answer")
+                .addEventListener("input", function (e) {
+                    e.preventDefault();
 
-        currentAnswer = e.currentTarget.value;
-        noOfWords =
-          e.currentTarget.value == ""
-            ? 0
-            : e.currentTarget.value.trim().split(" ").length;
+                    currentAnswer = e.currentTarget.value;
+                    noOfWords =
+                        e.currentTarget.value == ""
+                            ? 0
+                            : e.currentTarget.value.trim().split(" ").length;
 
-        document.getElementById("wordCount").textContent = noOfWords;
-      });
+                    document.getElementById("wordCount").textContent =
+                        noOfWords;
+                });
 
-      async function submitTest() {
-        const button = document.getElementById("submitBtn");
-        button.disabled = true;
-        button.textContent = "Submitting...";
+            async function submitTest() {
+                const button = document.getElementById("submitBtn");
+                button.disabled = true;
+                button.textContent = "Submitting...";
 
-        if (uploaded) {
-          alert(
-            "Test is already uploaded once. Refresh to take the test again"
-          );
-          return;
-        }
+                if (uploaded) {
+                    alert(
+                        "Test is already uploaded once. Refresh to take the test again",
+                    );
+                    return;
+                }
 
-        const fileContent = answerBox.value;
-        const response = await fetch(`${domain}/test/submit`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: "Bearer " + localStorage.getItem("token"),
-          },
-          body: JSON.stringify({
-            filename: `${testTitle}_${studentName}_${new Date()}.txt`,
-            content: fileContent,
-          }),
-        });
+                const fileContent = answerBox.value;
+                const response = await fetch(`${domain}/test/submit`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization:
+                            "Bearer " + localStorage.getItem("token"),
+                    },
+                    body: JSON.stringify({
+                        filename: `${testTitle}_${studentName}_${new Date()}.txt`,
+                        content: fileContent,
+                    }),
+                });
 
-        if (response.ok) {
-          uploaded = true;
-          localStorage.removeItem("writingTestAnswer");
-          button.disabled = false;
-          button.textContent = "Submit";
-          alert(
-            "Test successfully uploaded! You've done your job. Now go have fun"
-          );
-          window.close();
-        } else {
-          alert("Failed to upload test. Please try again.");
-          button.disabled = false;
-          button.textContent = "Submit";
-        }
-      }
+                if (response.ok) {
+                    uploaded = true;
+                    localStorage.removeItem("writingTestAnswer");
+                    button.disabled = false;
+                    button.textContent = "Submit";
+                    alert(
+                        "Test successfully uploaded! You've done your job. Now go have fun",
+                    );
+                    window.close();
+                } else {
+                    alert("Failed to upload test. Please try again.");
+                    button.disabled = false;
+                    button.textContent = "Submit";
+                }
+            }
 
-      window.onload = async () => {
-        while (!studentName) {
-          const result = window.prompt(
-            "Please input your name to start the test"
-          );
-          studentName = result;
-        }
-        const id = window.location.href.split("?")[1].split("=")[1];
+            window.onload = async () => {
+                while (!studentName) {
+                    const result = window.prompt(
+                        "Please input your name to start the test",
+                    );
+                    studentName = result;
+                }
+                const parsedUrl = new URL(window.location.href);
+                const id = parsedUrl.searchParams.get("id");
 
-        try {
-          const json = await getTest(id);
-          const test = json["test"];
-          timeLeft = parseInt(test.timeLimit) * 60;
-          testTitle = test.title;
-          document.getElementById("testTitle").textContent = test.title;
-          document.getElementById("testInstructions").textContent =
-            test.instructions;
+                try {
+                    const json = await getTest(id);
+                    const test = json["test"];
+                    timeLeft = parseInt(test.timeLimit) * 60;
+                    testTitle = test.title;
+                    document.getElementById("testTitle").textContent =
+                        test.title;
+                    document.getElementById("testInstructions").textContent =
+                        test.instructions;
 
-          if (test.imageUrl) {
-            const imgDoc = document.getElementById("testImg");
+                    if (test.imageUrl) {
+                        const imgDoc = document.getElementById("testImg");
 
-            imgDoc.src = test.imageUrl;
-          } else {
-            document.getElementById("testImg").classList.add("hidden");
-          }
+                        imgDoc.src = test.imageUrl;
+                    } else {
+                        document
+                            .getElementById("testImg")
+                            .classList.add("hidden");
+                    }
 
-          updateTimer();
-        } catch (e) {
-          console.log("Cannot get test" + e);
-          alert("Test does not exist");
-          window.close();
-        }
-      };
-    </script>
-  </body>
+                    updateTimer();
+                } catch (e) {
+                    console.log("Cannot get test" + e);
+                    alert("Test does not exist");
+                    window.close();
+                }
+            };
+        </script>
+    </body>
 </html>
