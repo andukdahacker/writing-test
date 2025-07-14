@@ -5,9 +5,10 @@ const AWS = require("aws-sdk");
 const { v4: uuidv4 } = require("uuid");
 const { MongoClient, ObjectId } = require("mongodb");
 const jwt = require("jsonwebtoken");
-const fs = require("fs");
+const fs = require("fs/promises");
 require("dotenv").config();
 const { google } = require("googleapis");
+const { Readable } = require("stream");
 const app = express();
 const upload = multer({ dest: "uploads/" });
 
@@ -68,10 +69,17 @@ async function getFolderId() {
   const folders = await drive.files.list({
     fields: "nextPageToken, files(id,name)",
     spaces: "drive",
+    q: "name = 'Writing Submission' and mimeType = 'application/vnd.google-apps.folder'",
+    corpora: "user",
+    includeItemsFromAllDrives: true,
+    supportsAllDrives: true,
   });
 
+  console.log("folders", folders);
+
   const folder = folders.data.files.filter((x) => {
-    return x.name === "Writing Submission";
+    console.log("folder name", x.name);
+    return x.name == "Writing Submission";
   });
 
   const folderId = folder.length ? folder[0].id : 0;
@@ -82,11 +90,12 @@ async function getFolderId() {
 async function uploadToDrive(filePath, fileName) {
   const media = {
     mimeType: "text/plain",
-    body: fs.createReadStream(filePath),
+    body: Readable.from(await fs.readFile(filePath)),
   };
 
   try {
     const folderId = await getFolderId();
+    console.log("folderId", folderId);
     const fileMetadata = {
       name: fileName,
       parents: [folderId], // Replace with your Google Drive folder ID
@@ -235,16 +244,18 @@ app.delete("/test/:id", authMiddleware, async (req, res) => {
 });
 
 app.post("/test/submit", async (req, res) => {
+  const { filename, content } = req.body;
+  const filePath = path.join(__dirname, "uploads", filename);
+  console.log("filePath", filePath);
   try {
-    const { filename, content } = req.body;
-    const filePath = path.join(__dirname, "uploads", filename);
-    fs.writeFileSync(filePath, content);
+    await fs.writeFile(filePath, content);
 
     const fileId = await uploadToDrive(filePath, filename);
-    fs.unlinkSync(filePath);
+    await fs.unlink(filePath);
 
     return res.status(200).json({ message: " Submitted successfully" });
   } catch (e) {
+    await fs.unlink(filePath);
     console.log("Error submitting test: ", e);
     res.status(500).json({ error: "Failed to submit test: " + e });
   }
