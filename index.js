@@ -198,7 +198,7 @@ app.post(
 
       if (req.file) {
         const key = `${uuidv4()}_${req.file.originalname}`;
-        const fileContent = fs.readFileSync(req.file.path);
+        const fileContent = await fs.readFile(req.file.path);
         const s3Params = {
           Bucket: S3_BUCKET,
           Key: key,
