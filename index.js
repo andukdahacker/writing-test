@@ -207,7 +207,7 @@ app.post(
         };
         await s3.upload(s3Params).promise();
         imageUrl = `${process.env.AWS_CLOUDFRONT_DOMAIN}/${key}`;
-        fs.unlinkSync(req.file.path);
+        await fs.unlink(req.file.path);
       }
 
       const db = mongoClient.db();
