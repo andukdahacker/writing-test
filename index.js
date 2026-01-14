@@ -82,7 +82,7 @@ async function getFolderId() {
     return x.name == "Writing Submission";
   });
 
-  console.log("folder after filter", folder[0].data);
+  console.log("folder after filter", folder[0]);
 
   const folderId = folder.length ? folder[0].id : 0;
 
