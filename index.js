@@ -86,6 +86,14 @@ async function getFolderId() {
 
   const folderId = folder.length ? folder[0].id : 0;
 
+  const test = await drive.files.get({
+    fileId: folderId,
+    fields: "id, name, driveId, capabilities",
+    supportsAllDrives: true,
+  });
+
+  console.log("test", test.data);
+
   return folderId;
 }
 
