@@ -82,6 +82,8 @@ async function getFolderId() {
     return x.name == "Writing Submission";
   });
 
+  console.log("folder after filter", folder[0].data);
+
   const folderId = folder.length ? folder[0].id : 0;
 
   return folderId;
@@ -101,11 +103,14 @@ async function uploadToDrive(filePath, fileName) {
       parents: [folderId], // Replace with your Google Drive folder ID
       mimeType: "application/vnd.google-apps.document",
     };
+
     const response = await drive.files.create({
       requestBody: fileMetadata,
       media: media,
       fields: "id",
+      supportsAllDrives: true,
     });
+
     return response.data.id;
   } catch (error) {
     console.error("Error uploading to Drive:", error);
