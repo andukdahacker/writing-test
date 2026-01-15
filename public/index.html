@@ -1,132 +1,133 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Create Writing Test</title>
-    <link rel="stylesheet" href="doodle.css" />
-    <style>
-      @import url("https://fonts.googleapis.com/css2?family=Short+Stack&display=swap");
-      body {
-        font-family: "Short Stack", cursive;
-      }
-    </style>
-    <style>
-      html {
-        margin: 0;
-        padding: 0;
-      }
-      body {
-        font-family: Arial, sans-serif;
-        background-color: #f4f4f4;
-        margin: 0;
-        padding: 0;
-        height: 100vh;
-        display: flex;
-        justify-content: center;
-      }
-      .container {
-        margin: auto;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        width: 360px;
-      }
-      .login-form {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        width: 100%;
-      }
-      input,
-      textarea {
-        width: 100%;
-        margin-bottom: 10px;
-        padding: 10px;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-      }
-      button {
-        background: blue;
-        color: white;
-        cursor: pointer;
-        width: 120px;
-        border-radius: 5px;
-        padding: 10px;
-      }
-      button:disabled {
-        background: gray;
-        cursor: not-allowed;
-      }
-      .test-link-list {
-        padding: 16px;
-        display: flex;
-        flex-direction: column;
-      }
-      .test-link {
-        padding: 10px;
-        margin-bottom: 10px;
-      }
-    </style>
-  </head>
-  <body class="doodle">
-    <div class="container doodle-border">
-      <form id="loginForm" class="login-form">
-        <input type="password" id="password" required />
-        <button type="submit" id="submitBtn">Sign In</button>
-      </form>
-    </div>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Create Writing Test</title>
+        <link rel="stylesheet" href="doodle.css" />
+        <style>
+            @import url("https://fonts.googleapis.com/css2?family=Short+Stack&display=swap");
+            body {
+                font-family: "Short Stack", cursive;
+            }
+        </style>
+        <style>
+            html {
+                margin: 0;
+                padding: 0;
+            }
+            body {
+                font-family: Arial, sans-serif;
+                background-color: #f4f4f4;
+                margin: 0;
+                padding: 0;
+                height: 100vh;
+                display: flex;
+                justify-content: center;
+            }
+            .container {
+                margin: auto;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                width: 360px;
+            }
+            .login-form {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                width: 100%;
+            }
+            input,
+            textarea {
+                width: 100%;
+                margin-bottom: 10px;
+                padding: 10px;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+            }
+            button {
+                background: blue;
+                color: white;
+                cursor: pointer;
+                width: 120px;
+                border-radius: 5px;
+                padding: 10px;
+            }
+            button:disabled {
+                background: gray;
+                cursor: not-allowed;
+            }
+            .test-link-list {
+                padding: 16px;
+                display: flex;
+                flex-direction: column;
+            }
+            .test-link {
+                padding: 10px;
+                margin-bottom: 10px;
+            }
+        </style>
+    </head>
+    <body class="doodle">
+        <div class="container doodle-border">
+            <form id="loginForm" class="login-form">
+                <input type="password" id="password" required />
+                <button type="submit" id="submitBtn">Sign In</button>
+            </form>
+        </div>
 
-    <script>
-      const domain = "https://writing-test-production.up.railway.app";
-      async function login(password) {
-        const headers = {
-          "Content-Type": "application/json",
-        };
-        const response = await fetch(`${domain}/login`, {
-          method: "POST",
-          body: JSON.stringify({ password }),
-          headers,
-        });
+        <script>
+            const domain = "https://writing-test-production.up.railway.app";
+            // const domain = "http://localhost:3000";
+            async function login(password) {
+                const headers = {
+                    "Content-Type": "application/json",
+                };
+                const response = await fetch(`${domain}/login`, {
+                    method: "POST",
+                    body: JSON.stringify({ password }),
+                    headers,
+                });
 
-        if (!response.ok) {
-          throw new Error("Failed to log in");
-        }
+                if (!response.ok) {
+                    throw new Error("Failed to log in");
+                }
 
-        const json = await response.json();
-        return json;
-      }
+                const json = await response.json();
+                return json;
+            }
 
-      document
-        .getElementById("loginForm")
-        .addEventListener("submit", async function (event) {
-          event.preventDefault();
+            document
+                .getElementById("loginForm")
+                .addEventListener("submit", async function (event) {
+                    event.preventDefault();
 
-          const submitBtn = document.getElementById("submitBtn");
-          submitBtn.disabled = true;
+                    const submitBtn = document.getElementById("submitBtn");
+                    submitBtn.disabled = true;
 
-          const password = document.getElementById("password").value;
+                    const password = document.getElementById("password").value;
 
-          try {
-            const json = await login(password);
-            localStorage.setItem("token", json["token"]);
-            window.location.href = `${domain}/dashboard`;
-          } catch (e) {
-            console.log("Error: ", e);
-            alert("Failed to log in");
-          } finally {
-            submitBtn.disabled = false;
-          }
-        });
-      window.onload = () => {
-        const token = localStorage.getItem("token");
+                    try {
+                        const json = await login(password);
+                        localStorage.setItem("token", json["token"]);
+                        window.location.href = `${domain}/dashboard`;
+                    } catch (e) {
+                        console.log("Error: ", e);
+                        alert("Failed to log in");
+                    } finally {
+                        submitBtn.disabled = false;
+                    }
+                });
+            window.onload = () => {
+                const token = localStorage.getItem("token");
 
-        if (token) {
-          window.location.href = `${domain}/dashboard`;
-        }
-      };
-    </script>
-  </body>
+                if (token) {
+                    window.location.href = `${domain}/dashboard`;
+                }
+            };
+        </script>
+    </body>
 </html>
