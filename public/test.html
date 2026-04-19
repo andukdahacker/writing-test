@@ -31,6 +31,29 @@
             .hidden {
                 display: none;
             }
+            .notification {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                padding: 12px;
+                text-align: center;
+                font-weight: bold;
+                z-index: 1000;
+                font-size: 1.1em;
+            }
+            .notification.info {
+                background-color: #fff3cd;
+                color: #856404;
+            }
+            .notification.success {
+                background-color: #d4edda;
+                color: #155724;
+            }
+            .notification.error {
+                background-color: #f8d7da;
+                color: #721c24;
+            }
             .test-img {
                 width: 100%; /* or any custom size */
                 height: 100%;
@@ -81,6 +104,7 @@
         </style>
     </head>
     <body class="doodle">
+        <div id="notification" class="hidden notification"></div>
         <div class="test-header doodle-border">
             <p id="warning" class="hidden warning" style="color: red"></p>
             <p class="time">
@@ -143,6 +167,12 @@
                 return await response.json();
             }
 
+            function showNotification(message, type = "info") {
+                const notification = document.getElementById("notification");
+                notification.textContent = message;
+                notification.className = "notification " + type;
+            }
+
             function updateTimer() {
                 let minutes = Math.floor(timeLeft / 60);
                 let seconds = timeLeft % 60;
@@ -153,7 +183,7 @@
                     timeLeft--;
                     setTimeout(updateTimer, 1000);
                 } else {
-                    alert("Time's up! Your test is being submitted.");
+                    showNotification("Time's up! Your test is being submitted.", "info");
                     submitTest();
                 }
             }
@@ -169,8 +199,9 @@
                     warning.textContent = `Warning: You switched tabs ${switchCount}/${maxSwitches} times!`;
                     warning.classList.remove("hidden");
                     if (switchCount == maxSwitches) {
-                        alert(
+                        showNotification(
                             "You have switched tabs too many times. Your test is being submitted.",
+                            "error",
                         );
                         submitTest();
                     }
@@ -199,45 +230,69 @@
                         noOfWords;
                 });
 
-            async function submitTest() {
+            const MAX_RETRIES = 3;
+            const RETRY_DELAY_MS = 2000;
+            let submitting = false;
+
+            async function submitTest(retryCount = 0) {
                 const button = document.getElementById("submitBtn");
                 button.disabled = true;
                 button.textContent = "Submitting...";
 
-                if (uploaded) {
-                    alert(
+                if (uploaded || (submitting && retryCount === 0)) {
+                    showNotification(
                         "Test is already uploaded once. Refresh to take the test again",
+                        "info",
                     );
                     return;
                 }
 
-                const fileContent = answerBox.value;
-                const response = await fetch(`${domain}/test/submit`, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization:
-                            "Bearer " + localStorage.getItem("token"),
-                    },
-                    body: JSON.stringify({
-                        filename: `${testTitle}_${studentName}_${new Date()}.txt`,
-                        content: fileContent,
-                    }),
-                });
+                submitting = true;
 
-                if (response.ok) {
-                    uploaded = true;
-                    localStorage.removeItem("writingTestAnswer");
-                    button.disabled = false;
-                    button.textContent = "Submit";
-                    alert(
-                        "Test successfully uploaded! You've done your job. Now go have fun",
-                    );
-                    window.close();
-                } else {
-                    alert("Failed to upload test. Please try again.");
-                    button.disabled = false;
-                    button.textContent = "Submit";
+                const fileContent = answerBox.value;
+
+                try {
+                    const response = await fetch(`${domain}/test/submit`, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            Authorization:
+                                "Bearer " + localStorage.getItem("token"),
+                        },
+                        body: JSON.stringify({
+                            filename: `${testTitle}_${studentName}_${new Date()}.txt`,
+                            content: fileContent,
+                        }),
+                    });
+
+                    if (response.ok) {
+                        uploaded = true;
+                        localStorage.removeItem("writingTestAnswer");
+                        button.disabled = false;
+                        button.textContent = "Submit";
+                        showNotification(
+                            "Test successfully uploaded! You've done your job. Now go have fun",
+                            "success",
+                        );
+                    } else {
+                        throw new Error("Server returned " + response.status);
+                    }
+                } catch (e) {
+                    if (retryCount < MAX_RETRIES) {
+                        showNotification(
+                            `Upload failed. Retrying... (${retryCount + 1}/${MAX_RETRIES})`,
+                            "error",
+                        );
+                        setTimeout(() => submitTest(retryCount + 1), RETRY_DELAY_MS);
+                    } else {
+                        submitting = false;
+                        showNotification(
+                            "Failed to upload test after multiple attempts. Please click Submit to try again.",
+                            "error",
+                        );
+                        button.disabled = false;
+                        button.textContent = "Submit";
+                    }
                 }
             }
 
